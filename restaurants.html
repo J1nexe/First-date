@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose Our Restaurant</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #ffd6e6;
+        }
+
+        h1 {
+            text-align: center;
+            color: #ff4d88;
+            margin-bottom: 30px;
+        }
+
+        #selectedInfo {
+            text-align: center;
+            font-size: 1.2em;
+            color: #ff4d88;
+            margin-bottom: 30px;
+        }
+
+        .restaurants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .restaurant-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .restaurant-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .restaurant-card.selected {
+            border: 3px solid #ff4d88;
+        }
+
+        .restaurant-card.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ff4d88;
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .restaurant-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .restaurant-content {
+            padding: 20px;
+        }
+
+        .restaurant-title {
+            font-size: 1.2em;
+            color: #ff4d88;
+            margin-bottom: 10px;
+        }
+
+        .restaurant-description {
+            color: #666;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        #finalizeBtn {
+            display: block;
+            margin: 30px auto;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            background-color: #ff4d88;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        #finalizeBtn:hover {
+            transform: scale(1.05);
+        }
+
+        #finalizeBtn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .restaurant-card {
+            animation: fadeIn 0.5s ease forwards;
+        }
+    </style>
+</head>
+<body>
+    <h1>Where shall we eat? 🍽️</h1>
+    <div id="selectedInfo"></div>
+    <div class="restaurants-grid" id="restaurantsGrid"></div>
+    <button id="finalizeBtn" disabled>Finalize Date Plan 💕</button>
+
+    <script>
+        const restaurants = [
+            {
+                title: "Jollibee",
+                description: "Home of the famous Chickenjoy and Jolly Spaghetti!",
+                image: "https://imgs.search.brave.com/Tr_u63I3vM2zBcKryZSVYB8KZi1mdVw5yuAa86z9RWg/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly91cGxv/YWQud2lraW1lZGlh/Lm9yZy93aWtpcGVk/aWEvY29tbW9ucy9h/L2E2L0pvbGxpYmVl/X01hbGF5c2lhLmpw/Zw"
+            },
+            {
+                title: "McDonald's",
+                description: "Enjoy our world-famous burgers and fries!",
+                image: "https://imgs.search.brave.com/zIaMljPfw7wzZYmBDbaUww4TpmdSJWtnhCHw9EETbAw/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5nZXR0eWltYWdl/cy5jb20vaWQvNDU4/NzAzMzE5L3Bob3Rv/L21jZG9uYWxkcy1i/aWctbWFjLXZhbHVl/LW1lYWwuanBnP3M9/NjEyeDYxMiZ3PTAm/az0yMCZjPVNDbVp4/UVdkelE5VXVLSGtx/TWttbHRZWXYxbU9H/WDJBQTFwOEJ1dWI1/UXM9"
+            },
+            {
+                title: "KFC",
+                description: "Finger Lickin' Good chicken with special recipe!",
+                image: "https://images.unsplash.com/photo-1513639776629-7b61b0ac49cb"
+            },
+            {
+                title: "Mang Inasal",
+                description: "Best Chicken Inasal with unlimited rice!",
+                image: "https://www.kawalingpinoy.com/wp-content/uploads/2020/06/authentic-chicken-inasal-9-730x973.jpg"
+            },
+            {
+                title: "Chowking",
+                description: "Chinese-Filipino fusion cuisine at its finest!",
+                image: "https://imgs.search.brave.com/sUn2yzgEywuxWhcvwO1DbRfWohtTffkCa6Jy9-2c5Zc/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cu/Y2hvd2tpbmd1c2Eu/Y29tL2Nkbi9zaG9w/L2ZpbGVzL0Fib3V0/X1VzLmpwZz92PTE2/MzQxNjUzNTAmd2lk/dGg9MTA4MA"
+            },
+        ];
+
+        let selectedRestaurant = null;
+        const selectedDate = localStorage.getItem('selectedDate');
+        const selectedActivities = JSON.parse(localStorage.getItem('selectedActivities'));
+
+        // Display selected info
+        document.getElementById('selectedInfo').innerHTML = `
+            For our date on ${selectedDate}<br>
+            Activities: ${selectedActivities.join(', ')}
+        `;
+
+        // Create restaurant cards
+        const grid = document.getElementById('restaurantsGrid');
+        const finalizeBtn = document.getElementById('finalizeBtn');
+
+        restaurants.forEach((restaurant, index) => {
+            const card = document.createElement('div');
+            card.className = 'restaurant-card';
+            card.style.animationDelay = `${index * 0.1}s`;
+            
+            card.innerHTML = `
+                <img src="${restaurant.image}" alt="${restaurant.title}" class="restaurant-image">
+                <div class="restaurant-content">
+                    <div class="restaurant-title">${restaurant.title}</div>
+                    <div class="restaurant-description">${restaurant.description}</div>
+                </div>
+            `;
+            
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.restaurant-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                selectedRestaurant = restaurant.title;
+                finalizeBtn.disabled = false;
+            });
+            
+            grid.appendChild(card);
+        });
+
+        finalizeBtn.addEventListener('click', () => {
+            const finalPlan = {
+                date: selectedDate,
+                activities: selectedActivities,
+                restaurant: selectedRestaurant
+            };
+            
+            // Save to localStorage
+            localStorage.setItem('finalPlan', JSON.stringify(finalPlan));
+            
+            // Save to database
+            fetch('save_date_plan.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(finalPlan)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`Perfect! Can't wait for our date! 💕\n\nDate: ${selectedDate}\nActivities: ${selectedActivities.join(', ')}\nRestaurant: ${selectedRestaurant}\n\nYour date plan has been saved!`);
+                } else {
+                    alert('There was an error saving your date plan. But don\'t worry, we can still go on our date! 😊');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert(`Perfect! Can't wait for our date! 💕\n\nDate: ${selectedDate}\nActivities: ${selectedActivities.join(', ')}\nRestaurant: ${selectedRestaurant}`);
+            });
+        });
+    </script>
+</body>
+</html> 

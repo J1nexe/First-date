@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose Our First Date Activity</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #ffd6e6;
+        }
+
+        h1 {
+            text-align: center;
+            color: #ff4d88;
+            margin-bottom: 30px;
+        }
+
+        #selectedDate {
+            text-align: center;
+            font-size: 1.2em;
+            color: #ff4d88;
+            margin-bottom: 30px;
+        }
+
+        .activities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .activity-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .activity-card.selected {
+            border: 3px solid #ff4d88;
+            transform: translateY(-5px);
+        }
+
+        .activity-card.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ff4d88;
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .activity-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .activity-content {
+            padding: 20px;
+        }
+
+        .activity-title {
+            font-size: 1.2em;
+            color: #ff4d88;
+            margin-bottom: 10px;
+        }
+
+        .activity-description {
+            color: #666;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .activity-card {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        #submitBtn {
+            display: block;
+            margin: 30px auto;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            background-color: #ff4d88;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        #submitBtn:hover {
+            transform: scale(1.05);
+        }
+
+        #submitBtn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <h1>What shall we do on our first date? 💝</h1>
+    <div id="selectedDate"></div>
+    <div class="activities-grid" id="activitiesGrid"></div>
+    <button id="submitBtn" disabled>Choose Where to Eat →</button>
+
+    <script>
+        const activities = [
+            {
+                title: "Arcade",
+                description: "Let's play some games together!",
+                image: "https://images.unsplash.com/photo-1511882150382-421056c89033"
+            },
+            {
+                title: "Picnic in the Park",
+                description: "A romantic picnic with homemade treats and beautiful nature views.",
+                image: "https://images.unsplash.com/photo-1595475207225-428b62bda831"
+            },
+            {
+                title: "Movie Night",
+                description: "Watch the latest blockbuster while sharing popcorn and sweet treats.",
+                image: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba"
+            },
+            {
+                title: "Playing Board Games",
+                description: "Let's play some board games together!",
+                image: "https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09"
+            },
+            {
+                title: "Cooking Together",
+                description: "Learn to cook a new cuisine together and enjoy our creation.",
+                image: "https://images.unsplash.com/photo-1507048331197-7d4ac70811cf"
+            },
+            {
+                title: "Amusement Park",
+                description: "Let's go to the amusement park together!",
+                image: "https://images.unsplash.com/photo-1513889961551-628c1e5e2ee9"
+            },
+            {
+                title: "Eating Out",
+                description: "Let's go to the restaurant together!",
+                image: "https://imgs.search.brave.com/cICMo0PiWhkOc-PSDzVqxb0Nsbrv0jgRu-fKawRQU1A/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMTI5/NzQ5ODE3Mi9waG90/by9mcmllbmRzLWZp/bGwteW91ci1saWZl/LXdpdGgtZnVuLmpw/Zz9zPTYxMng2MTIm/dz0wJms9MjAmYz13/bG12Uk9ZM2hPczdM/N2FPUkVRTGZhVFpN/LW9hWVJ0N25UVnky/Q0dlVjQ4PQ"
+            },
+            {
+                title: "Play Sports",
+                description: "Let's play some sports together!",
+                image: "https://images.unsplash.com/photo-1501443762994-82bd5dace89a"
+            },
+            {
+                title: "Botanical Garden",
+                description: "Wander through beautiful gardens and exotic plants.",
+                image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae"
+            },
+            {
+                title: "Talk",
+                description: "Let's talk about our feelings together!",
+                image: "https://imgs.search.brave.com/ZU2R7ZJXszuOG0k9kOC_YmzG3c9q4wnCZUTtpY1HdiI/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly90NC5m/dGNkbi5uZXQvanBn/LzAxLzAxLzg3Lzcz/LzM2MF9GXzEwMTg3/NzM3NV93c2wxVU1P/aVNmUHBuMGE5c0xi/WllZSFpHQUdrQTlQ/eC5qcGc"
+            },
+        ];
+
+        let selectedActivities = [];
+
+        // Display selected date
+        const selectedDate = localStorage.getItem('selectedDate');
+        document.getElementById('selectedDate').textContent = `For our date on ${selectedDate}`;
+
+        // Create activity cards
+        const grid = document.getElementById('activitiesGrid');
+        const submitBtn = document.getElementById('submitBtn');
+
+        activities.forEach((activity, index) => {
+            const card = document.createElement('div');
+            card.className = 'activity-card';
+            card.style.animationDelay = `${index * 0.1}s`;
+            
+            card.innerHTML = `
+                <img src="${activity.image}" alt="${activity.title}" class="activity-image">
+                <div class="activity-content">
+                    <div class="activity-title">${activity.title}</div>
+                    <div class="activity-description">${activity.description}</div>
+                </div>
+            `;
+            
+            card.addEventListener('click', () => {
+                card.classList.toggle('selected');
+                
+                if (card.classList.contains('selected')) {
+                    selectedActivities.push(activity.title);
+                } else {
+                    selectedActivities = selectedActivities.filter(a => a !== activity.title);
+                }
+                
+                submitBtn.disabled = selectedActivities.length === 0;
+            });
+            
+            grid.appendChild(card);
+        });
+
+        submitBtn.addEventListener('click', () => {
+            localStorage.setItem('selectedActivities', JSON.stringify(selectedActivities));
+            window.location.href = 'restaurants.html';
+        });
+    </script>
+</body>
+</html> 
